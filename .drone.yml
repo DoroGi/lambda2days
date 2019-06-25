@@ -32,3 +32,36 @@ steps:
     when:
       event:
         - push
+
+  - name: deploy
+    image: hashicorp/terraform:0.11.12
+    commands:
+      - MD5=$(cat workshop_md5.txt)
+      - cd terraform
+      - terraform init
+      - terraform apply --var "my_name=dorog" --var "file_name=$MD5" -auto-approve
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: AWS_SECRET_ACCESS_KEY
+      STAGE: dev
+      REGION: eu-central-1
+    when:
+      event:
+        - push
+
+  - name: acceptance test
+    image: node:12.4.0
+    commands:
+      - yarn acceptance
+    environment:
+      AWS_ACCESS_KEY_ID:
+        from_secret: AWS_ACCESS_KEY_ID
+      AWS_SECRET_ACCESS_KEY:
+        from_secret: AWS_SECRET_ACCESS_KEY
+      STAGE: dev
+      REGION: eu-central-1
+    when:
+      event:
+        - push
