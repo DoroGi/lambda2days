@@ -5,8 +5,8 @@ steps:
   - name: integration test
     image: node:12.4.0
     commands:
-      - yarn --frozen-lockfile
-      - yarn test
+      - npm install
+      - npm run test
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: AWS_ACCESS_KEY_ID
@@ -54,7 +54,7 @@ steps:
   - name: acceptance test
     image: node:12.4.0
     commands:
-      - yarn acceptance
+      - npm run acceptance
     environment:
       AWS_ACCESS_KEY_ID:
         from_secret: AWS_ACCESS_KEY_ID
