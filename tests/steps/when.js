@@ -75,50 +75,61 @@ const viaHttp = async (relPath, method, opts) => {
 }
 
 const viaHandler = async (event, functionName) => {
-    const handler = require(`${APP_ROOT}/functions/${functionName}`).handler
-    console.log(`invoking via handler function ${functionName}`)
-  
-    const context = {}
-    const response = await handler(event, context)
-    const contentType = _.get(response, 'headers.content-type', 'application/json');
-    if (response.body && contentType === 'application/json') {
-      response.body = JSON.parse(response.body);
-    }
-    return response
+  const handler = require(`${APP_ROOT}/functions/${functionName}`).handler
+
+  const context = {}
+  const response = await handler(event, context)
+  const contentType = _.get(response, 'headers.content-type', 'application/json');
+  if (response.body && contentType === 'application/json') {
+    response.body = JSON.parse(response.body);
   }
+  return response
+}
 
 const we_invoke_get_index = async () => {
-    const res = 
-      mode === 'handler' 
-        ? await viaHandler({}, 'get-index')
-        : await viaHttp('', 'GET')
-  
-    return res
-  }
+  const res = 
+    mode === 'handler' 
+      ? await viaHandler({}, 'get-index')
+      : await viaHttp('', 'GET')
 
-  const we_invoke_get_restaurants = async () => {
-    const res =
-      mode === 'handler' 
-        ? await viaHandler({}, 'get-restaurants')
-        : await viaHttp('restaurants', 'GET', { iam_auth: true })
-  
-    return res
+  return res
+}
+
+const we_invoke_get_restaurants = async () => {
+  const res =
+    mode === 'handler' 
+      ? await viaHandler({}, 'get-restaurants')
+      : await viaHttp('restaurants', 'GET', { iam_auth: true })
+
+  return res
+}
+
+const we_invoke_search_restaurants = theme => {
+  let event = {
+    body: JSON.stringify({ theme })
   }
-  const we_invoke_search_restaurants = theme => {
-    let event = {
-      body: JSON.stringify({ theme })
-    }
-    
-    const res = 
-      mode === 'handler'
-        ? viaHandler(event, 'search-restaurants')
-        : viaHttp('restaurants/search', 'POST', event)
   
-    return res
-  }
+  const res = 
+    mode === 'handler'
+      ? viaHandler(event, 'search-restaurants')
+      : viaHttp('restaurants/search', 'POST', event)
+
+  return res
+}
+
+const we_invoke_place_order = async (restaurantName) => {
+  const body = JSON.stringify({ restaurantName })
+  const res = 
+    mode === 'handler'
+      ? await viaHandler({ body }, 'place-order')
+      : await viaHttp('orders', 'POST', { body })
+  
+  return res
+}
 
 module.exports = {
   we_invoke_get_index,
   we_invoke_get_restaurants,
-  we_invoke_search_restaurants
+  we_invoke_search_restaurants,
+  we_invoke_place_order,
 }

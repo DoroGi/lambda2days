@@ -34,7 +34,7 @@ steps:
         - push
 
   - name: deploy
-    image: hashicorp/terraform:0.11.12
+    image: hashicorp/terraform:0.11.11
     commands:
       - MD5=$(cat workshop_md5.txt)
       - cd terraform
